@@ -24,11 +24,6 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 % Setup some useful variables
 m = size(X, 1);
-         
-% You need to return the following variables correctly 
-J = 0;
-Theta1_grad = zeros(size(Theta1));
-Theta2_grad = zeros(size(Theta2));
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
@@ -39,6 +34,48 @@ Theta2_grad = zeros(size(Theta2));
 %         cost function computation is correct by verifying the cost
 %         computed in ex4.m
 %
+
+eye_matrix = eye(num_labels);
+Y = eye_matrix(y, :);
+
+m = size(X, 1);
+bias = ones(m,1);
+
+A_1 = [bias, X];
+
+Z_2 = A_1 * Theta1';
+A_2 = [bias, sigmoid(Z_2)];
+
+Z_3 = A_2 * Theta2';
+A_3 = sigmoid(Z_3);
+
+%cost function
+
+J = trace(-Y'*log(A_3) - ((1-Y')*log(1-A_3)))/m;
+
+% regularization
+l_theta_1 = Theta1(:, 2:size(Theta1,2));
+l_theta_2 = Theta2(:, 2:size(Theta2,2));
+
+l_theta = ((sum(sum(l_theta_1.^2)) + sum(sum(l_theta_2.^2)))*lambda)/(2*m);
+
+J = J + l_theta;
+
+% backpropagation
+
+d_3 =  A_3 - Y;
+d_2 = (d_3 * l_theta_2) .* sigmoidGradient(Z_2);
+
+Delta1 = d_2' * A_1;
+Delta2 = d_3' * A_2;
+
+Theta1_grad = Delta1 ./m;
+Theta2_grad = Delta2 ./m;
+
+% regularization of theta
+Theta1_grad(:, 2:end) = Theta1_grad(:, 2:end) + ((lambda/m) * Theta1(:, 2:end));
+Theta2_grad(:, 2:end) = Theta2_grad(:, 2:end) + ((lambda/m) * Theta2(:, 2:end));
+
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 %         Theta1_grad and Theta2_grad. You should return the partial derivatives of
 %         the cost function with respect to Theta1 and Theta2 in Theta1_grad and
