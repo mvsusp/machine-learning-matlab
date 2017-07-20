@@ -35,6 +35,15 @@ centroids = zeros(K, n);
 
 % =============================================================
 
-
+for k = 1:K
+  c_num = 0;
+  c_sum = zeros(n, 1);
+  for i = 1:m
+    if ( idx(i) == k )
+      c_sum = c_sum + X(i, :)';
+      c_num = c_num + 1;
+    end
+  end
+  centroids(k, :) = (c_sum/c_num)';
 end
 
